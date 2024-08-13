@@ -1,4 +1,5 @@
-import Component from './component.html';
+// @ts-expect-error
+import Component from '../0.js';
 
 const component = new Component({});
 

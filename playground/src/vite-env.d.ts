@@ -1,9 +1,9 @@
 /// <reference types="vite/client" />
 declare module '*.html' {
-  export = class Component {
+  class Component {
     constructor(props: any);
-
     render(parent: HTMLElement);
-  };
+  }
+  export { Component, Component as default };
 }
 declare const $: Record<string, any>;
