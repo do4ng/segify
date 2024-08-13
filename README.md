@@ -59,3 +59,40 @@ export default defineConfig({
   ],
 });
 ```
+
+## Counter
+
+Below code is a counter implementation using segify.
+
+```html
+<script lang="ts" type="text/typescript">
+  $.counter = 0;
+
+  function increase() {
+    $.counter += 1;
+  }
+
+  function decrease() {
+    $.counter -= 1;
+  }
+</script>
+
+<div class="counter">
+  <h1 class="counting">{{ $.counter }}</h1>
+  <div>
+    <button $onclick="increase">+ 1</button>
+    <button $onclick="decrease">- 1</button>
+  </div>
+</div>
+```
+
+In segify, `$` is very special.  
+It works in such a way that when the value of `$` is added/updated, elements inserted through `{{}}` are updated.
+
+> Note: This can be very inefficient for constants because when $ is updated, all inserted data is updated. In this case, add the `@const` prefix in front, like `{{ @const my_data }}`.
+
+To see more examples of `$`, visit our [website](https://segify.vercel.app/#usage-s)
+
+## License
+
+MIT
