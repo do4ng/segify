@@ -194,7 +194,7 @@ export async function compile(
 }`);
 
   if (options?.noExport !== true) {
-    file.push('export default Component;');
+    file.push('export { Component, Component as default}');
   }
 
   return file.join('\n');
