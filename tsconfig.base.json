@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "declaration": true,
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
+    "strict": false,
+    "noUnusedLocals": false,
+    "module": "esnext",
+    "noUnusedParameters": false,
+    "types": ["node", "vitest/globals"]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "segify",
+  "version": "0.0.0-beta.0",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/src/index.d.ts",
+  "files": [
+    "dist/src",
+    "dist",
+    "dist/chunks"
+  ],
+  "devDependencies": {
+    "sass": "^1.77.8",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "get-tsconfig": "^4.7.6"
+  }
+}
