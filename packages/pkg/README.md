@@ -1,1 +1,0 @@
-# @senta/pkg
