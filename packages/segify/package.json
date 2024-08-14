@@ -1,6 +1,6 @@
 {
   "name": "segify",
-  "version": "0.0.0-beta.9",
+  "version": "0.0.0-beta.10",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/src/index.d.ts",
