@@ -1,5 +1,4 @@
-# segify
-
+<h1>Segify</h1>
 segify is a **compiler** that helps you create interactive and super fast web pages.
 It compiles vanilla HTML code into vanilla JavaScript modules (which has no dependencies!)
 
@@ -21,6 +20,16 @@ import Component from './component.html';
 const target = document.body;
 new Component({}).render(target);
 ```
+
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Starting new project](#starting-new-project)
+  - [Using vite](#using-vite)
+- [Counter](#counter)
+- [Compiler Apis](#compiler-apis)
+  - [`compile()`](#compile)
+- [License](#license)
 
 ## Starting new project
 
@@ -92,6 +101,21 @@ It works in such a way that when the value of `$` is added/updated, elements ins
 > Note: This can be very inefficient for constants because when $ is updated, all inserted data is updated. In this case, add the `@const` prefix in front, like `{{ @const my_data }}`.
 
 To see more examples of `$`, visit our [website](https://segify.vercel.app/#usage-s)
+
+## Compiler Apis
+
+### `compile()`
+
+`segify.compile()` compiles html and returns a javascript module
+
+```ts
+import { compile } from 'segify';
+
+const compiled = await compile(code);
+```
+
+> Warning: If an error appears saying that `client/lib.mjs` cannot be found,
+> you should find [`client/lib.mjs`](https://github.com/do4ng/segify/blob/main/packages/segify/client/lib.mjs) and set `global.segify_asset` directly. - [Example](https://github.com/do4ng/segify/blob/a59a2183f68ff90decdd02055d09996eedea85d4/playground/vite.config.ts#L20)
 
 ## License
 
