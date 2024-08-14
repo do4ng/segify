@@ -1,27 +1,34 @@
-export const CREATE_ELEMENT = `var $$ce = (t, a, c=[]) => {
-  var component = document.createElement(t);
-  for (const key in a) {
-    component.setAttribute(key, a[key]);
-  }
-  for (const child of c) {
-    $$isElement(child)&&component.appendChild(child);
-  }
-  return component;
-};`.replace(/[\r\n\t]/g, '');
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { createRequire } from 'node:module';
 
-export const CREATE_TEXT = `var $$ct = (t) => {
-  return document.createTextNode(t);
-};`.replace(/[\r\n\t]/g, '');
-export const CREATE_DATA = `
-var $$cd = (t,s=true) => {
-  var subscriber = document.createTextNode(t());
-  s && $$subscribe.push([subscriber, t]);
-  return subscriber;
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default () => {
+  const require = createRequire(import.meta.url);
+
+  if (global.segify_asset) {
+    return readFileSync(global.segify_asset).toString();
+  }
+
+  // find asset file
+  if (existsSync(join(__dirname, './client/lib.js'))) {
+    return readFileSync(join(__dirname, './client/lib.js')).toString();
+  }
+  if (existsSync(join(__dirname, '../../client/lib.ts'))) {
+    return readFileSync(join(__dirname, '../../../dist/client/lib.js')).toString();
+  }
+
+  try {
+    if (existsSync(join(require.resolve('segify'), './client/lib.js'))) {
+      return readFileSync(join(require.resolve('segify'), './client/lib.js')).toString();
+    }
+  } catch (e) {
+    // ...
+  }
+
+  throw new Error('Cannot find asset');
 };
-`.replace(/[\r\n\t]/g, '');
-
-export const IS_ELEMENT = `
-function $$isElement(element) {
-return element instanceof Element || element instanceof HTMLDocument || element instanceof Text;  
-}
-`.replace(/[\r\n\t]/g, '');

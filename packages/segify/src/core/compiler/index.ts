@@ -1,13 +1,16 @@
 import { compileLanguage } from '../../languages/setup';
 import { startsWithCapital } from '../../lib/startsWith';
 import { ElementAttributes, HTMLElement, parse } from '../parser';
-import { CREATE_DATA, CREATE_ELEMENT, CREATE_TEXT, IS_ELEMENT } from './template';
+import TEMPLATE from './template';
 
 const createElement = (...args) => `$$ce(${args.join(',')})`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
 const createData = (...args) => `$$cd(${args.join(',')})`;
 
-const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
+const createTag = (tag: string) => {
+  console.log(tag);
+  return startsWithCapital(tag) ? tag : JSON.stringify(tag);
+};
 
 function append(elements: HTMLElement[], data: any[]) {
   const appends = [];
@@ -52,7 +55,7 @@ function append(elements: HTMLElement[], data: any[]) {
       } else {
         appends.push(
           createElement(
-            JSON.stringify(element.tag),
+            createTag(element.tag),
             JSON.stringify(element.attributes),
             `[${append(element.children || [], data)[0].join(',')}]`
           )
@@ -125,7 +128,7 @@ export async function compile(
     }
   }
 
-  file.push(CREATE_ELEMENT, CREATE_TEXT, CREATE_DATA, IS_ELEMENT);
+  file.push(TEMPLATE());
   file.push(`var $ = new Proxy(
     {__props__: {}},
     {
