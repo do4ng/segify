@@ -2,7 +2,9 @@
 var $$cc = (t, a, c = []) => {
   a.children = c;
   const component = new t(a);
-  return component.$$components();
+  const cs = component.$$components();
+  component.$$events();
+  return cs;
 };
 var $$ce = (t, a, c = []) => {
   if (typeof t !== "string")

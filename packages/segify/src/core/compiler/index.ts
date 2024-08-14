@@ -116,16 +116,17 @@ export async function compile(
   // compile scss/typescript
   if (options?.disableProcessor !== true) {
     await import('../../languages');
-    for await (const src of meta.scripts) {
-      compiledMeta.scripts.push(
-        (await compileLanguage('script', src[0] || 'js', src[1])).code
-      );
-    }
-    for await (const src of meta.styles) {
-      compiledMeta.styles.push(
-        (await compileLanguage('style', src[0] || 'css', src[1])).code
-      );
-    }
+  }
+
+  for await (const src of meta.scripts) {
+    compiledMeta.scripts.push(
+      (await compileLanguage('script', src[0] || 'js', src[1])).code
+    );
+  }
+  for await (const src of meta.styles) {
+    compiledMeta.styles.push(
+      (await compileLanguage('style', src[0] || 'css', src[1])).code
+    );
   }
 
   file.push(TEMPLATE());
@@ -185,6 +186,12 @@ export async function compile(
     return stylesheet;
   }
 
+  $$events() {
+    for (const evt of $$events) {
+      evt[1].addEventListener(evt[0], evt[2])
+    }
+  }
+
   render(root) {
     document.head.appendChild(this.$$stylesheet());
 
@@ -192,10 +199,7 @@ export async function compile(
       $$isElement(component)&&root.appendChild(component);
     }
 
-  ${/* Events */ ''}
-    for (const evt of $$events) {
-      evt[1].addEventListener(evt[0], evt[2])
-    }
+    this.$$events();
   }
 }`);
 

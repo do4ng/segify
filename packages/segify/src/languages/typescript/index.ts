@@ -1,6 +1,6 @@
 /* eslint-disable no-unreachable-loop */
 /* eslint-disable space-in-parens */
-import { getTsconfig } from 'get-tsconfig';
+import type { TsConfigJsonResolved } from 'get-tsconfig';
 import { defineLanguage } from '../setup';
 
 export default defineLanguage('script', 'ts', async (code) => {
@@ -14,7 +14,10 @@ export default defineLanguage('script', 'ts', async (code) => {
     );
   }
 
-  const tsconfig = getTsconfig().config;
+  const tsconfig: TsConfigJsonResolved =
+    typeof global !== 'undefined'
+      ? (await import('get-tsconfig')).getTsconfig().config
+      : { compilerOptions: { module: 'esnext' } };
 
   const compiled = typescript.transpileModule(code, {
     ...(tsconfig as any),

@@ -8,6 +8,7 @@ interface Component {
   constructor($: any);
 
   $$components(): HTMLElement[];
+  $$events(): void;
   $$render(parent: HTMLElement): any;
 }
 
@@ -20,7 +21,11 @@ const $$cc = (
 
   const component = new t(a);
 
-  return component.$$components();
+  const cs = component.$$components();
+
+  component.$$events();
+
+  return cs;
 };
 
 const $$ce = (t: string, a: Record<string, string>, c: HTMLElement[] = []) => {
