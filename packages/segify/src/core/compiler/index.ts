@@ -7,10 +7,7 @@ const createElement = (...args) => `$$ce(${args.join(',')})`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
 const createData = (...args) => `$$cd(${args.join(',')})`;
 
-const createTag = (tag: string) => {
-  console.log(tag);
-  return startsWithCapital(tag) ? tag : JSON.stringify(tag);
-};
+const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
 
 function append(elements: HTMLElement[], data: any[]) {
   const appends = [];

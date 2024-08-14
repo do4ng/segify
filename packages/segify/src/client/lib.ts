@@ -27,14 +27,28 @@ const $$cc = (
 
   return cs;
 };
+declare const $$DEV_PROPS: any;
 
-const $$ce = (t: string, a: Record<string, string>, c: HTMLElement[] = []) => {
+const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) => {
   if (typeof t !== 'string') return $$cc(t, a, c);
 
   const component = document.createElement(t);
 
   for (const key in a) {
-    component.setAttribute(key, a[key]);
+    if (Array.isArray(a[key])) {
+      // eslint-disable-next-line prefer-const
+      let [data, original]: [string[], string] = a[key] as any;
+
+      console.log(data, original, $$DEV_PROPS);
+
+      for (const att of data) {
+        original = original.replace(att, $$DEV_PROPS[att]());
+      }
+
+      component.setAttribute(key, original);
+    } else {
+      component.setAttribute(key, a[key]);
+    }
   }
 
   for (const child of c) {

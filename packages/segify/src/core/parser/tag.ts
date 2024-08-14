@@ -31,8 +31,18 @@ export function parseTag(tag: string) {
   let suspected = false;
 
   let selected = '';
+  let isIncludingData = false;
+  let data = [];
 
   let currentAttribute = null;
+
+  const until = (text: string) => {
+    const sliced = tag.slice(current + 1).indexOf(text);
+
+    if (sliced < 0) return -1;
+
+    return sliced + current + 2;
+  };
 
   while (current < tag.length) {
     const text = tag[current];
@@ -41,8 +51,15 @@ export function parseTag(tag: string) {
 
     if (string.opened) {
       if (text === string.start) {
-        result.attributes[currentAttribute] = selected;
+        if (isIncludingData) {
+          result.attributes[currentAttribute] = [data, selected];
+        } else {
+          result.attributes[currentAttribute] = selected;
+        }
+
         string.opened = false;
+        isIncludingData = false;
+        data = [];
         suspected = false;
         current += 1;
         selected = '';
@@ -51,19 +68,23 @@ export function parseTag(tag: string) {
       }
 
       if (text === '$') {
-        throw new Error('Attribute value type must be "string" or "data".');
-        /*
         // open data
         const to = until('$');
 
-        if (to < 0) throw new Error('$ must be closed');
+        if (to < 0) {
+          current += 1;
+          selected += text;
+          continue;
+        }
 
-        console.log(tag.slice(current, to));
+        data = [];
+        selected += tag.slice(current, to);
+        data.push(tag.slice(current, to));
 
         current = to;
+        isIncludingData = true;
 
         continue;
-        */
       }
 
       selected += text;

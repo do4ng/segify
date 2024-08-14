@@ -11,7 +11,16 @@ var $$ce = (t, a, c = []) => {
     return $$cc(t, a, c);
   const component = document.createElement(t);
   for (const key in a) {
-    component.setAttribute(key, a[key]);
+    if (Array.isArray(a[key])) {
+      let [data, original] = a[key];
+      console.log(data, original, $$DEV_PROPS);
+      for (const att of data) {
+        original = original.replace(att, $$DEV_PROPS[att]());
+      }
+      component.setAttribute(key, original);
+    } else {
+      component.setAttribute(key, a[key]);
+    }
   }
   for (const child of c) {
     Array.isArray(child) && child.forEach((ct) => component.appendChild(ct));
