@@ -27,7 +27,7 @@ for (const pkg of buildPkgs) {
     platform: 'browser',
 
     outbase: join(buildBase, './src'),
-    outdir: join(buildBase, './dist'),
+    outdir: join(buildBase, './'),
     metafile: true,
     splitting: true,
 

@@ -15,16 +15,12 @@ export default () => {
   }
 
   // find asset file
-  if (existsSync(join(__dirname, './client/lib.js'))) {
-    return readFileSync(join(__dirname, './client/lib.js')).toString();
+  if (existsSync(join(__dirname, '../client/lib.js'))) {
+    return readFileSync(join(__dirname, '../client/lib.js')).toString();
   }
-  if (existsSync(join(__dirname, '../../client/lib.ts'))) {
-    return readFileSync(join(__dirname, '../../../dist/client/lib.js')).toString();
-  }
-
   try {
     if (existsSync(join(require.resolve('segify'), './client/lib.js'))) {
-      return readFileSync(join(require.resolve('segify'), './client/lib.js')).toString();
+      return readFileSync(join(require.resolve('segify'), '../client/lib.js')).toString();
     }
   } catch (e) {
     // ...
