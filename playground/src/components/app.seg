@@ -15,7 +15,7 @@
       $.count += 1;
     }, 1000);
   </script>
-  <p>{{$.count}}</p>
+  <p>{\{$.count}}</p>
   `
 </script>
 
