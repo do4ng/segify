@@ -1,10 +1,13 @@
 import { compileLanguage } from '../../languages/setup';
+import { startsWithCapital } from '../../lib/startsWith';
 import { ElementAttributes, HTMLElement, parse } from '../parser';
 import { CREATE_DATA, CREATE_ELEMENT, CREATE_TEXT, IS_ELEMENT } from './template';
 
 const createElement = (...args) => `$$ce(${args.join(',')})`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
 const createData = (...args) => `$$cd(${args.join(',')})`;
+
+const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
 
 function append(elements: HTMLElement[], data: any[]) {
   const appends = [];
@@ -23,7 +26,7 @@ function append(elements: HTMLElement[], data: any[]) {
           if ($attributes.$mount) {
             appends.push(
               `(${$attributes.$mount}=${createElement(
-                JSON.stringify(element.tag),
+                createTag(element.tag),
                 JSON.stringify(element.attributes),
                 `[${append(element.children || [], data)[0].join(',')}]`
               )})`
@@ -39,7 +42,7 @@ function append(elements: HTMLElement[], data: any[]) {
           if ($attributes.$onclick) {
             appends.push(
               `($$events.push(["click", ${createElement(
-                JSON.stringify(element.tag),
+                createTag(element.tag),
                 JSON.stringify(element.attributes),
                 `[${append(element.children || [], data)[0].join(',')}]`
               )},${$attributes.$onclick}]) && $$events[$$events.length - 1][1])`
