@@ -1,5 +1,6 @@
 // @ts-expect-error
-import Component from '../0.js';
+// eslint-disable-next-line import/no-named-as-default
+import Component from './components/component.html.js';
 
 const component = new Component({});
 

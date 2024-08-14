@@ -1,5 +1,5 @@
 <script lang="ts" type="text/typescript">
-  import { example1, example2 } from './lib';
+  import App from './app.html';
 
   $.counter = 0;
 
@@ -10,94 +10,20 @@
   function decrease() {
     $.counter -= 1;
   }
-  $.count = 0;
-  setInterval(() => {
-    $.count += 1;
-  }, 1000); 
-  const example$ = `<script>
-  $.count = 0;
-  setInterval(() => {
-    $.count += 1;
-  }, 1000);
-</script>
-<p>\{\{$.count}}</p>
-  `
 </script>
 
 <main>
   <div class="counter">
     <div class="counter-container">
-      <h1>Segify</h1>
+      <h1>Segify!!</h1>
       <h1 class="counting">{{ $.counter }}</h1>
-      <div> 
+      <div>
         <button $onclick="increase">+ 1</button>
         <button $onclick="decrease">- 1</button>
       </div>
     </div>
   </div>
-
-  <div class="main">
-    <h2 id="what-is-segify"><a href="#what-is-segify">#</a>What is segify?</h2>
-    segify is a <b>compiler</b> that helps you create interactive and super fast web
-    pages.<br />
-    It compiles vanilla HTML code into vanilla JavaScript modules (which has no
-    dependencies!)
-
-    <h2 id="usage"><a href="#usage">#</a>How to use?</h2>
-    Visit <a href="https://github.com/do4ng/segify">our repository</a> to learn segify!
-
-    <h2 id="usage-s"><a href="#usage-s">#</a>What is "{{ @const "$" }}"?</h2>
-    In HTML files compiled with segify, the `{{ @const "$" }}`(dollar sign) plays a very
-    important role.<br /> 
-    `{{ @const "$" }}` serves as <b>"state"</b> in other frameworks.<br /><br />
-    `{{ @const "$" }}` is an object that can be used publicly within one page, and it works in
-    such a way that modifying the value of `{{ @const "$" }}` updates HTML DOM.
-
-    <pre>
-      <code>{{@const example$}}</code>
-    </pre>
-
-    
-    <div class="result">
-      <p>{{ $.count }}</p>
-    </div>
-
-    <h2 id="examples"><a href="#examples">#</a>Examples</h2>
-    <h3>Example 1 - Basic</h3>
-
-    <li>Input (.html)</li>
-
-    <pre>
-      <code>{{@const example1}}</code>
-    </pre>
-
-    <li>Output (.html)</li>
-
-    <div class="result">
-      <div>Hello World!</div>
-    </div>
-
-    <h3>Example 2 - Inserting Data</h3>
-
-    <li>Input (.html)</li>
-
-    <pre>
-      <code>{{@const example2}}</code>
-    </pre>
-
-    <div class="tip">
-      <h4>TIP</h4>
-      <p>
-        Inserted data is updated whenever {{@const "$"}} is updated, so use the `@const` prefix before constant data to prevent updates.
-      </p>
-    </div>
-
-    <li>Output (.html)</li>
-
-    <div class="result">
-      <div>Hello World</div>
-    </div>
-  </div>
+  <App></App>
 </main>
 
 <style lang="scss">
@@ -120,7 +46,9 @@
     padding: 5px 10px;
     margin: 15px 0px;
 
-    p {margin: 0}
+    p {
+      margin: 0;
+    }
   }
   .counter {
     text-align: center;
