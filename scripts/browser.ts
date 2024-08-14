@@ -5,9 +5,9 @@ import { existsSync, readFileSync, rmSync } from 'fs';
 import * as glob from 'glob';
 import { dirname, join } from 'path';
 
-import './browser';
+const buildPkgs = glob.globSync(['packages/**/*/build.browser.json']);
 
-const buildPkgs = glob.globSync(['packages/**/*/build.json']);
+console.log(buildPkgs);
 
 for (const pkg of buildPkgs) {
   console.log(`> ${join(process.cwd(), pkg)}`);
@@ -24,14 +24,12 @@ for (const pkg of buildPkgs) {
   const baseConfig: BuildOptions = {
     entryPoints: config.map((entry) => join(buildBase, entry)),
     logLevel: 'info',
-    platform: 'node',
+    platform: 'browser',
 
     outbase: join(buildBase, './src'),
     outdir: join(buildBase, './dist'),
     metafile: true,
     splitting: true,
-    treeShaking: true,
-    minify: true,
 
     plugins: [nodeExternalsPlugin()],
   };
