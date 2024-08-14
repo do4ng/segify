@@ -2,6 +2,10 @@
 segify is a **compiler** that helps you create interactive and super fast web pages.
 It compiles vanilla HTML code into vanilla JavaScript modules (which has no dependencies!)
 
+## Try on web.
+
+[visit /repl.html](https://segify.vercel.app/repl.html)
+
 ```html
 <!-- component.html -->
 <script>
@@ -14,6 +18,8 @@ It compiles vanilla HTML code into vanilla JavaScript modules (which has no depe
 <p>{{ $.count }}</p>
 ```
 
+[Try on repl!](<https://segify.vercel.app/repl.html#%3Cscript%3E%0A%20%20$.count%20=%200;%0A%20%20setInterval(()%20=%3E%20%7B%0A%20%20%20%20$.count%20+=%201;%0A%20%20%7D,%201000);%0A%3C/script%3E%0A%3Cp%3E%7B%7B$.count%7D%7D%3C/p%3E%0A>)
+
 ```ts
 import Component from './component.html';
 
@@ -23,6 +29,7 @@ new Component({}).render(target);
 
 ## Table of Contents
 
+- [Try on web.](#try-on-web)
 - [Table of Contents](#table-of-contents)
 - [Starting new project](#starting-new-project)
   - [Using vite](#using-vite)
