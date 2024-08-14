@@ -17,7 +17,7 @@ export default defineConfig({
     {
       name: 'segify',
       async transform(code, id, options) {
-        global.segify_asset = join(__dirname, '../packages/segify/dist/client/lib.mjs');
+        global.segify_asset = join(__dirname, '../packages/segify/client/lib.mjs');
 
         if (!id.endsWith('.seg')) return;
         code = readFileSync(id).toString();

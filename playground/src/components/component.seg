@@ -1,5 +1,5 @@
 <script lang="ts" type="text/typescript">
-  import App from './app.html';
+  import App from './app.seg';
 
   $.counter = 0;
 
