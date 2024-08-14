@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-declare module '*.html' {
+declare module '*.seg' {
   class Component {
     constructor(props: any);
     render(parent: HTMLElement);

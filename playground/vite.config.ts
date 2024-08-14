@@ -16,10 +16,10 @@ export default defineConfig({
   plugins: [
     {
       name: 'segify',
-      apply: 'serve',
       async transform(code, id, options) {
-        if (!id.endsWith('.html')) return;
-        if (id.endsWith('index.html')) return;
+        global.segify_asset = join(__dirname, '../packages/segify/dist/client/lib.mjs');
+
+        if (!id.endsWith('.seg')) return;
         code = readFileSync(id).toString();
         const compiled = await compile(code);
 
