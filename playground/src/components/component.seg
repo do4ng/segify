@@ -10,6 +10,8 @@
   function decrease() {
     $.counter -= 1;
   }
+
+  const app = "50";
 </script>
 
 <main>
@@ -18,7 +20,7 @@
       <h1>Segify!!</h1>
       <h1 class="counting">{{ $.counter }}</h1>
       <div>
-        <button $onclick="increase">+ 1</button>
+        <button $onclick="increase" aa="{{app}}">+ 1</button>
         <button $onclick="decrease">- 1</button>
       </div>
     </div>
