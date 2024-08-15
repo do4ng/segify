@@ -2,10 +2,11 @@ import { compileLanguage } from '../../languages/setup';
 import { startsWithCapital } from '../../lib/startsWith';
 import { ElementAttributes, HTMLElement, parse } from '../parser';
 import TEMPLATE from './template';
+import { travelScript } from './travel';
 
-const createElement = (...args) => `$$ce(${args.join(',')})`;
+const createElement = (...args) => `$$ce(${args.join(',')}, this.$$DEV_PROPS)`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
-const createData = (...args) => `...$$cd(${args.join(',')})`;
+const createData = (...args) => `...$$cd(${args.join(',')}, this.$$subscribe)`;
 
 const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
 
@@ -126,25 +127,40 @@ export async function compile(
     );
   }
 
+  const [importMeta, output] = travelScript(compiledMeta.scripts.join('\n'));
+
   file.push(TEMPLATE());
-  file.push(`var $ = new Proxy(
-    {__props__: {}},
-    {
-      set(target, prop, value, receiver) {
-        target[prop] = value;
-        for (const subscriber of $$subscribe) {
-          const s = subscriber[0].nodeValue=subscriber[1]();
-        }
-        return true;
-      },
-    }
-  );`);
-  file.push('var $$subscribe=[];');
-  file.push('var $$events=[];');
   file.push('/*scripts*/'); // user scripts
-  file.push(compiledMeta.scripts.join('\n'));
-  file.push(
-    `var $$DEV_PROPS={\n\t${data
+  file.push(importMeta.join('\n'));
+
+  file.push(`class Component {
+    $$subscribe=[];
+  constructor(props) {
+    var $$subscribe = [];
+    var $$events=[];
+    var $ = new Proxy(
+      {__props__: {}},
+      {
+        set(target, prop, value, receiver) {
+          target[prop] = value;
+          for (const subscriber of $$subscribe) {
+            const s = subscriber[0].nodeValue=subscriber[1]();
+          }
+          return true;
+        },
+      }
+    );
+    for (const prop of Object.keys(props)) {
+      $[prop] = props[prop];
+    }
+    this.$ = $;
+    this.$$events=$$events;
+    this.$$subscribe=$$subscribe;
+  }
+
+  $$components() {
+    const {$, $$events, $$subscribe} = this;
+    var $$DEV_PROPS={\n\t${data
       .map(
         (d, index) =>
           `"$${index}$":()=>(${(() => {
@@ -156,17 +172,10 @@ export async function compile(
             return $data;
           })()})`
       )
-      .join(',\n\t')}\n}`
-  );
+      .join(',\n\t')}\n};
+    this.$$DEV_PROPS=$$DEV_PROPS;
+    ${output};
 
-  file.push(`class Component {
-  constructor(props) {
-    for (const prop of Object.keys(props)) {
-      $[prop] = props[prop];
-    }
-  }
-
-  $$components() {
     return [${fragment.join(',')}];
   }
 
@@ -183,8 +192,8 @@ export async function compile(
     return stylesheet;
   }
 
-  $$events() {
-    for (const evt of $$events) {
+  $$event() {
+    for (const evt of this.$$events) {
       evt[1].addEventListener(evt[0], evt[2])
     }
   }
@@ -194,7 +203,7 @@ export async function compile(
     for (const component of [].concat(...this.$$components())) {
       $$isElement(component)&&root.appendChild(component);
     }
-    this.$$events();
+    this.$$event();
   }
 }`);
 

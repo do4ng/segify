@@ -8,7 +8,7 @@ interface Component {
   constructor($: any);
 
   $$components(): HTMLElement[];
-  $$events(): void;
+  $$event(): void;
   $$stylesheet(): void;
   $$render(parent: HTMLElement): any;
 }
@@ -16,7 +16,8 @@ interface Component {
 const $$cc = (
   t: { new ($: any): Component },
   a: Record<string, any>,
-  c: HTMLElement[] = []
+  c: HTMLElement[] = [],
+  $$DEV_PROPS: any = {}
 ) => {
   a.children = [].concat(...c);
   for (const key in a) {
@@ -42,14 +43,18 @@ const $$cc = (
   const cs = component.$$components();
 
   component.$$stylesheet();
-  component.$$events();
+  component.$$event();
 
   return cs;
 };
-declare const $$DEV_PROPS: any;
 
-const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) => {
-  if (typeof t !== 'string') return $$cc(t, a, c);
+const $$ce = (
+  t: string,
+  a: Record<string, string | []>,
+  c: HTMLElement[] = [],
+  $$DEV_PROPS: any = {}
+) => {
+  if (typeof t !== 'string') return $$cc(t, a, c, $$DEV_PROPS);
 
   const component = document.createElement(t);
 
@@ -80,7 +85,7 @@ const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) 
 
 const $$ct = (t: string) => document.createTextNode(t);
 
-const $$cd = (t: any, s = true) => {
+const $$cd = (t: any, s = true, $$subscribe = []) => {
   const returnWrapping = (v: any) => {
     if (Array.isArray(v)) {
       return v;
