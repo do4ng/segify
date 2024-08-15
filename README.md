@@ -1,4 +1,7 @@
 <h1>Segify</h1>
+
+---
+
 segify is a **compiler** that helps you create interactive and super fast web pages.
 It compiles vanilla HTML code into vanilla JavaScript modules (which has no dependencies!)
 
