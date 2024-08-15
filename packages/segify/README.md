@@ -24,10 +24,13 @@ const target = document.body;
 new Component({}).render(target);
 ```
 
+> [try on repl!](<https://segify.vercel.app/repl.html#%3Cscript%3E%0A%20%20$.count%20=%200;%0A%20%20setInterval(()%20=%3E%20%7B%0A%20%20%20%20$.count%20+=%201;%0A%20%20%7D,%201000);%0A%3C/script%3E%0A%3Cp%3E%7B%7B$.count%7D%7D%3C/p%3E%0A>)
+
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
 - [Starting new project](#starting-new-project)
+  - [Try on web.](#try-on-web)
   - [Using vite](#using-vite)
 - [Counter](#counter)
 - [Compiler Apis](#compiler-apis)
@@ -39,6 +42,10 @@ new Component({}).render(target);
 ```bash
 npm i --save-dev segify
 ```
+
+### Try on web.
+
+[Visit repl page](https://segify.vercel.app/repl.html) to try compiler on web.
 
 ### Using vite
 
@@ -98,6 +105,8 @@ Below code is a counter implementation using segify.
 </div>
 ```
 
+> [try on repl](<https://segify.vercel.app/repl.html#%3Cscript%3E%0A%20%20$.counter%20=%200;%0A%0A%20%20function%20increase()%20%7B%0A%20%20%20%20$.counter%20+=%201;%0A%20%20%7D%0A%0A%20%20function%20decrease()%20%7B%0A%20%20%20%20$.counter%20-=%201;%0A%20%20%7D%0A%3C/script%3E%0A%0A%3Cdiv%20class=%22counter%22%3E%0A%20%20%3Ch1%20class=%22counting%22%3E%7B%7B%20$.counter%20%7D%7D%3C/h1%3E%0A%20%20%3Cdiv%3E%0A%20%20%20%20%3Cbutton%20$onclick=%22increase%22%3E+%201%3C/button%3E%0A%20%20%20%20%3Cbutton%20$onclick=%22decrease%22%3E-%201%3C/button%3E%0A%20%20%3C/div%3E%0A%3C/div%3E>)
+
 In segify, `$` is very special.  
 It works in such a way that when the value of `$` is added/updated, elements inserted through `{{}}` are updated.
 
@@ -116,9 +125,6 @@ import { compile } from 'segify';
 
 const compiled = await compile(code);
 ```
-
-> Warning: If an error appears saying that `client/lib.mjs` cannot be found,
-> you should find [`client/lib.mjs`](https://github.com/do4ng/segify/blob/main/packages/segify/client/lib.mjs) and set `global.segify_asset` directly. - [Example](https://github.com/do4ng/segify/blob/a59a2183f68ff90decdd02055d09996eedea85d4/playground/vite.config.ts#L20)
 
 ## License
 
