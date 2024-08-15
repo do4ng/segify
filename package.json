@@ -36,5 +36,8 @@
     "test:ui": "vitest --ui",
     "lint-fix": "eslint --fix --ext .js,.ts ."
   },
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "dependencies": {
+    "segify": "^0.0.0-beta.11"
+  }
 }
