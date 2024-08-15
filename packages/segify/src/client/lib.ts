@@ -9,6 +9,7 @@ interface Component {
 
   $$components(): HTMLElement[];
   $$events(): void;
+  $$stylesheet(): void;
   $$render(parent: HTMLElement): any;
 }
 
@@ -23,6 +24,7 @@ const $$cc = (
 
   const cs = component.$$components();
 
+  component.$$stylesheet();
   component.$$events();
 
   return cs;
