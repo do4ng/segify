@@ -52,30 +52,26 @@ npm i --save-dev segify
 
 Experience the segify compiler using the simple vite plugin.
 
-(The vite plugin package will be released soon!)
+```bash
+npm i --save-dev vite-plugin-segify segify
+```
 
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite';
-import { compile } from 'segify';
-import { readFileSync } from 'fs';
+import { Segify } from 'vite-plugin-segify';
 
 export default defineConfig({
-  assetsInclude: ['**/*.html'],
   plugins: [
-    {
-      name: 'segify',
-      async transform(code, id, options) {
-        if (!id.endsWith('.html')) return;
-        code = readFileSync(id).toString();
-        const compiled = await compile(code);
-
-        return {
-          code: compiled,
-          map: null,
-        };
+    Segify({
+      // compile target
+      extension: '.seg',
+      // client assets
+      asset: {
+        raw: undefined,
+        location: undefined,
       },
-    },
+    }),
   ],
 });
 ```
@@ -178,7 +174,3 @@ console.log(ast);
 ## License
 
 MIT
-
-```
-
-```
