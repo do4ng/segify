@@ -25,7 +25,8 @@
     "vitest": "^2.0.5"
   },
   "scripts": {
-    "build": "node -r @swc-node/register scripts/build.ts --dts && yarn build:browser && yarn build:run",
+    "build": "yarn build:browser && yarn build:run && node -r @swc-node/register scripts/build.ts",
+    "build:prod": "yarn build --dts",
     "build:browser": "node -r @swc-node/register scripts/browser.ts",
     "build:run": "node -r @swc-node/register scripts/run.ts",
     "build:dts": "node -r @swc-node/register scripts/build.ts --dts",
