@@ -32,6 +32,7 @@ new Component({}).render(target);
 - [Starting new project](#starting-new-project)
   - [Try on web.](#try-on-web)
   - [Using vite](#using-vite)
+    - [For Typescript](#for-typescript)
 - [Counter](#counter)
 - [Compiler Apis](#compiler-apis)
   - [`compile()`](#compile)
@@ -74,6 +75,22 @@ export default defineConfig({
     }),
   ],
 });
+```
+
+#### For Typescript
+
+To prevent typescript errors, please add the code below to `src/vite-env.d.ts`.
+
+```ts
+// vite-env.d.ts
+/// <reference types="vite/client" />
+declare module '*.seg' {
+  class Component {
+    constructor(props: any);
+    render(parent: HTMLElement);
+  }
+  export { Component, Component as default };
+}
 ```
 
 ## Counter
