@@ -20,6 +20,19 @@ const $$cc = (
 ) => {
   a.children = c;
 
+  for (const key in a) {
+    if (Array.isArray(a[key])) {
+      // eslint-disable-next-line prefer-const
+      let [data, original]: [string[], string] = a[key] as any;
+
+      for (const att of data) {
+        original = original.replace(att, $$DEV_PROPS[att]());
+      }
+
+      a[key] = original;
+    }
+  }
+
   const component = new t(a);
 
   const cs = component.$$components();
