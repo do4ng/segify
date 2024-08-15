@@ -2,8 +2,6 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable guard-for-in */
 
-declare const $$subscribe;
-
 interface Component {
   constructor($: any);
 
