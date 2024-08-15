@@ -21,7 +21,12 @@ const $$cc = (
   a.children = c;
 
   for (const key in a) {
-    if (Array.isArray(a[key])) {
+    if (
+      Array.isArray(a[key]) &&
+      a[key].length === 2 &&
+      Array.isArray(a[key][0]) &&
+      typeof a[key][1] === 'string'
+    ) {
       // eslint-disable-next-line prefer-const
       let [data, original]: [string[], string] = a[key] as any;
 
