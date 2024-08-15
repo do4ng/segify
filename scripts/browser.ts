@@ -15,7 +15,7 @@ for (const pkg of buildPkgs) {
   const config: string[] = JSON.parse(readFileSync(join(process.cwd(), pkg), 'utf-8'));
   const buildBase = dirname(pkg);
 
-  const outdir = join(buildBase, 'dist');
+  const outdir = join(buildBase, 'client');
 
   if (existsSync(outdir)) {
     rmSync(outdir, { recursive: true, force: true });
