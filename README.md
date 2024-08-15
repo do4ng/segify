@@ -35,6 +35,7 @@ new Component({}).render(target);
 - [Counter](#counter)
 - [Compiler Apis](#compiler-apis)
   - [`compile()`](#compile)
+  - [`parse()`](#parse)
 - [License](#license)
 
 ## Starting new project
@@ -110,7 +111,8 @@ Below code is a counter implementation using segify.
 In segify, `$` is very special.  
 It works in such a way that when the value of `$` is added/updated, elements inserted through `{{}}` are updated.
 
-> Note: This can be very inefficient for constants because when $ is updated, all inserted data is updated. In this case, add the `@const` prefix in front, like `{{ @const my_data }}`.
+> [!NOTE]
+> This can be very inefficient for constants because when $ is updated, all inserted data is updated. In this case, add the `@const` prefix in front, like `{{ @const my_data }}`.
 
 To see more examples of `$`, visit our [website](https://segify.vercel.app/#usage-s)
 
@@ -126,6 +128,57 @@ import { compile } from 'segify';
 const compiled = await compile(code);
 ```
 
+### `parse()`
+
+```ts
+import { parse } from 'segify';
+
+const { ast, data } = parse('<h1 id="hello">Hello World</h1>', {
+  keepComment: true,
+});
+
+console.log(ast);
+```
+
+<details><summary>Output AST</summary>
+
+> ```json
+> {
+>   "type": "fragment",
+>   "attributes": {},
+>   "children": [
+>     {
+>       "type": "element",
+>       "tag": "h1",
+>       "attributes": { "id": "hello" },
+>       "children": [
+>         {
+>           "type": "text",
+>           "attributes": {},
+>           "children": [],
+>           "text": "Hello World",
+>           "value": null,
+>           "position": { "start": -1, "end": -1 }
+>         }
+>       ],
+>       "text": null,
+>       "value": null,
+>       "position": { "start": 14, "end": 30 },
+>       "raw": "Hello World"
+>     }
+>   ],
+>   "text": null,
+>   "value": null,
+>   "position": { "start": -1, "end": -1 }
+> }
+> ```
+
+</details>
+
 ## License
 
 MIT
+
+```
+
+```
