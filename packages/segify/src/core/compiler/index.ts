@@ -5,7 +5,7 @@ import TEMPLATE from './template';
 
 const createElement = (...args) => `$$ce(${args.join(',')})`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
-const createData = (...args) => `$$cd(${args.join(',')})`;
+const createData = (...args) => `...$$cd(${args.join(',')})`;
 
 const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
 
@@ -191,11 +191,9 @@ export async function compile(
 
   render(root) {
     document.head.appendChild(this.$$stylesheet());
-
-    for (const component of this.$$components()) {
+    for (const component of [].concat(...this.$$components())) {
       $$isElement(component)&&root.appendChild(component);
     }
-
     this.$$events();
   }
 }`);

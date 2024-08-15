@@ -18,8 +18,7 @@ const $$cc = (
   a: Record<string, any>,
   c: HTMLElement[] = []
 ) => {
-  a.children = c;
-
+  a.children = [].concat(...c);
   for (const key in a) {
     if (
       Array.isArray(a[key]) &&
@@ -59,8 +58,6 @@ const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) 
       // eslint-disable-next-line prefer-const
       let [data, original]: [string[], string] = a[key] as any;
 
-      console.log(data, original, $$DEV_PROPS);
-
       for (const att of data) {
         original = original.replace(att, $$DEV_PROPS[att]());
       }
@@ -72,7 +69,10 @@ const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) 
   }
 
   for (const child of c) {
-    Array.isArray(child) && child.forEach((ct) => component.appendChild(ct));
+    Array.isArray(child) &&
+      child.forEach((ct) => {
+        component.appendChild(ct);
+      });
     $$isElement(child) && component.appendChild(child);
   }
   return component;
@@ -81,9 +81,22 @@ const $$ce = (t: string, a: Record<string, string | []>, c: HTMLElement[] = []) 
 const $$ct = (t: string) => document.createTextNode(t);
 
 const $$cd = (t: any, s = true) => {
-  const subscriber = document.createTextNode(t());
+  const returnWrapping = (v: any) => {
+    if (Array.isArray(v)) {
+      return v;
+    }
+    return [v];
+  };
+
+  const $$output = t();
+
+  if (Array.isArray($$output)) {
+    return returnWrapping($$output);
+  }
+
+  const subscriber = document.createTextNode($$output);
   s && $$subscribe.push([subscriber, t]);
-  return subscriber;
+  return returnWrapping(subscriber);
 };
 
 function $$isElement(element) {
