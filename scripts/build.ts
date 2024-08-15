@@ -5,8 +5,6 @@ import { existsSync, readFileSync, rmSync } from 'fs';
 import * as glob from 'glob';
 import { dirname, join } from 'path';
 
-import './browser';
-
 const buildPkgs = glob.globSync(['packages/**/*/build.json']);
 
 for (const pkg of buildPkgs) {
