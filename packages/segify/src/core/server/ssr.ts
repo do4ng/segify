@@ -1,4 +1,3 @@
-import { writeFileSync } from 'fs';
 import { compile } from '../compiler';
 
 const runtime = /* js */ `
@@ -48,8 +47,6 @@ export async function serverRender(code: string) {
   const script = `${runtime}${js};const __serverside_component = new Component({}); return __serverside_component.$$components();`;
 
   const output: Array<{ getText: () => string }> = new Function(script)();
-
-  writeFileSync('./a.js', script);
 
   return {
     output,
