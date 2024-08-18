@@ -103,6 +103,10 @@ const $$cd = (t: any, s = true, $$subscribe = []) => {
 };
 
 function $$isElement(element) {
+  if ((window as any).__env__ === 'ssr') {
+    return element?.__component__;
+  }
+
   return (
     element instanceof Element ||
     element instanceof HTMLDocument ||
@@ -110,10 +114,22 @@ function $$isElement(element) {
   );
 }
 
+const $$mount = (target, onMount, el) => {
+  if (target) {
+    target = el;
+  }
+  if (onMount) {
+    onMount(el);
+  }
+
+  return el;
+};
+
 (window as any).$$$$ = {
   $$cc,
   $$ce,
   $$ct,
   $$cd,
   $$isElement,
+  $$mount,
 };

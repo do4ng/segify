@@ -24,19 +24,29 @@ function append(elements: HTMLElement[], data: any[]) {
 
         if ($attributes) {
           // <div $mount=""></div>
-          if ($attributes.$mount) {
-            appends.push(
-              `(${$attributes.$mount}=${createElement(
-                createTag(element.tag),
-                JSON.stringify(element.attributes),
-                `[${append(element.children || [], data)[0].join(',')}]`
-              )})`
-            );
-          }
+          if ($attributes.$mount || $attributes.$onmount) {
+            if (process.env.mode === 'ssr') {
+              // server side rendering
+              appends.push(
+                createElement(
+                  createTag(element.tag),
+                  JSON.stringify(element.attributes),
+                  `[${append(element.children || [], data)[0].join(',')}]`
+                )
+              );
+            } else {
+              // client side rendering
 
-          // <div $mount="" $onmount="myFunction"></div>
-          if ($attributes.$onmount) {
-            appends.push(`(${$attributes.$onmount}(${$attributes.$mount || ''}))`);
+              appends.push(
+                `(${$attributes.$mount ? `${$attributes.$mount}=` : ''}$$mount(${
+                  $attributes.$mount || 'null'
+                }, ${$attributes.$onmount || 'null'}, ${createElement(
+                  createTag(element.tag),
+                  JSON.stringify(element.attributes),
+                  `[${append(element.children || [], data)[0].join(',')}]`
+                )}))`
+              );
+            }
           }
 
           // <div $onclick="myFunction"></div>
@@ -85,7 +95,11 @@ function travel(ast: HTMLElement, handler: (ast: HTMLElement) => HTMLElement) {
 
 export async function compile(
   source: string,
-  options?: { noExport?: boolean; disableProcessor?: boolean }
+  options?: {
+    noExport?: boolean;
+    disableProcessor?: boolean;
+    disableJavascript?: boolean;
+  }
 ) {
   const { ast, data } = parse(source, { keepComment: false });
   const file = [];
@@ -174,7 +188,11 @@ export async function compile(
       )
       .join(',\n\t')}\n};
     this.$$DEV_PROPS=$$DEV_PROPS;
-    ${output};
+    ${
+      options?.disableJavascript !== true
+        ? output
+        : `/*javascript disabled (due to options.disableJavascript).\n${output}*/`
+    };
 
     return [${fragment.join(',')}];
   }
