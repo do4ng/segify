@@ -16,7 +16,7 @@
     "esbuild-node-externals": "^1.8.0",
     "eslint": "^8.43.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.30.0",
     "get-tsconfig": "^4.7.6",
     "glob": "^11.0.0",
     "sass": "^1.77.8",
