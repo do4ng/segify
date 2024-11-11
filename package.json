@@ -21,7 +21,7 @@
     "glob": "^11.0.0",
     "sass": "^1.77.8",
     "typescript": "^5.5.4",
-    "vite-tsconfig-paths": "^4.3.2",
+    "vite-tsconfig-paths": "^5.1.2",
     "vitest": "^2.0.5"
   },
   "scripts": {
