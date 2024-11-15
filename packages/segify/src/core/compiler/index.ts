@@ -3,6 +3,7 @@ import { startsWithCapital } from '../../lib/startsWith';
 import { ElementAttributes, HTMLElement, parse } from '../parser';
 import TEMPLATE from './template';
 import { travelScript } from './travel';
+import '../../languages';
 
 const createElement = (...args) => `$$ce(${args.join(',')}, this.$$DEV_PROPS)`;
 const createText = (...args) => `$$ct(${args.join(',')})`;
@@ -22,31 +23,20 @@ function append(elements: HTMLElement[], data: any[]) {
 
         delete element.attributes.$;
 
-        if ($attributes) {
+        if ($attributes && process.env.mode !== 'ssr') {
           // <div $mount=""></div>
           if ($attributes.$mount || $attributes.$onmount) {
-            if (process.env.mode === 'ssr') {
-              // server side rendering
-              appends.push(
-                createElement(
-                  createTag(element.tag),
-                  JSON.stringify(element.attributes),
-                  `[${append(element.children || [], data)[0].join(',')}]`
-                )
-              );
-            } else {
-              // client side rendering
+            // client side rendering
 
-              appends.push(
-                `(${$attributes.$mount ? `${$attributes.$mount}=` : ''}$$mount(${
-                  $attributes.$mount || 'null'
-                }, ${$attributes.$onmount || 'null'}, ${createElement(
-                  createTag(element.tag),
-                  JSON.stringify(element.attributes),
-                  `[${append(element.children || [], data)[0].join(',')}]`
-                )}))`
-              );
-            }
+            appends.push(
+              `(${$attributes.$mount ? `${$attributes.$mount}=` : ''}$$mount(${
+                $attributes.$mount || 'null'
+              }, ${$attributes.$onmount || 'null'}, ${createElement(
+                createTag(element.tag),
+                JSON.stringify(element.attributes),
+                `[${append(element.children || [], data)[0].join(',')}]`
+              )}))`
+            );
           }
 
           // <div $onclick="myFunction"></div>
@@ -59,6 +49,14 @@ function append(elements: HTMLElement[], data: any[]) {
               )},${$attributes.$onclick}]) && $$events[$$events.length - 1][1])`
             );
           }
+        } else {
+          appends.push(
+            createElement(
+              createTag(element.tag),
+              JSON.stringify(element.attributes),
+              `[${append(element.children || [], data)[0].join(',')}]`
+            )
+          );
         }
       } else {
         appends.push(
