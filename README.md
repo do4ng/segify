@@ -138,8 +138,154 @@ To see more examples of `$`, visit our [website](https://segify.vercel.app/#usag
 ```ts
 import { compile } from 'segify';
 
-const compiled = await compile(code);
+const compiled = await compile('<script>$.count = 0;</script><p>{{ $.count }}</p>');
 ```
+
+<details>
+<summary>Output JS code</summary>
+
+> ```js
+> var $$cc = (t, a, c = [], $$DEV_PROPS = {}) => {
+>  a.children = [].concat(...c);
+>  for (const key in a) {
+>    if (Array.isArray(a[key]) && a[key].length === 2 && Array.isArray(a[key][0]) && typeof a[key][1] === "string") {
+>       let [data, original] = a[key];
+>       for (const att of data) {
+>         original = original.replace(att, $$DEV_PROPS[att]());
+>       }
+>       a[key] = original;
+>     }
+>   }
+>   const component = new t(a);
+>   const cs = component.$$components();
+>   component.$$stylesheet();
+>   component.$$event();
+>   return cs;
+> };
+> var $$ce = (t, a, c = [], $$DEV_PROPS = {}) => {
+>   if (typeof t !== "string") return $$cc(t, a, c, $$DEV_PROPS);
+>   const component = document.createElement(t);
+>   for (const key in a) {
+>     if (Array.isArray(a[key])) {
+>       let [data, original] = a[key];
+>       for (const att of data) {
+>         original = original.replace(att, $$DEV_PROPS[att]());
+>       }
+>       component.setAttribute(key, original);
+>     } else {
+>       component.setAttribute(key, a[key]);
+>     }
+>   }
+>   for (const child of c) {
+>     Array.isArray(child) && child.forEach((ct) => {
+>       component.appendChild(ct);
+>     });
+>     $$isElement(child) && component.appendChild(child);
+>   }
+>   return component;
+> };
+> var $$ct = (t) => document.createTextNode(t);
+> var $$cd = (t, s = true, $$subscribe = []) => {
+>   const returnWrapping = (v) => {
+>     if (Array.isArray(v)) {
+>       return v;
+>     }
+>     return [v];
+>   };
+>   const $$output = t();
+>   if (Array.isArray($$output)) {
+>     return returnWrapping($$output);
+>   }
+>   const subscriber = document.createTextNode($$output);
+>   s && $$subscribe.push([subscriber, t]);
+>   return returnWrapping(subscriber);
+> };
+> function $$isElement(element) {
+>   if (window.__env__ === "ssr") {
+>     return element?.__component__;
+>   }
+>   return element instanceof Element || element instanceof HTMLDocument || element instanceof Text;
+> }
+> var $$mount = (target, onMount, el) => {
+>   if (target) {
+>     target = el;
+>   }
+>   if (onMount) {
+>     onMount(el);
+>   }
+>   return el;
+> };
+> window.$$$$ = {
+>   $$cc,
+>   $$ce,
+>   $$ct,
+>   $$cd,
+>   $$isElement,
+>   $$mount
+> };
+>
+> /*scripts*/
+>
+> class Component {
+>     $$subscribe=[];
+>   constructor(props) {
+>     var $$subscribe = [];
+>     var $$events=[];
+>     var $ = new Proxy(
+>       {__props__: {}},
+>       {
+>         set(target, prop, value, receiver) {
+>           target[prop] = value;
+>           for (const subscriber of $$subscribe) {
+>             const s = subscriber[0].nodeValue=subscriber[1]();
+>           }
+>           return true;
+>         },
+>       }
+>     );
+>     for (const prop of Object.keys(props)) {
+>       $[prop] = props[prop];
+>     }
+>     this.$ = $;
+>     this.$$events=$$events;
+>     this.$$subscribe=$$subscribe;
+>   }
+>
+>   $$components() {
+>     const {$, $$events, $$subscribe} = this;
+>     var $$DEV_PROPS={
+> 	"$0$":()=>( $.count )
+> };
+>     this.$$DEV_PROPS=$$DEV_PROPS;
+>     $.count = 0;;
+>
+>     return [$$ce("script",{},[], this.$$DEV_PROPS),$$ce("p",{},[...$$cd($$DEV_PROPS["$0$"],true, this.> $$subscribe)], this.$$DEV_PROPS)];
+>   }
+>
+>   $$stylesheet() {
+>     var stylesheet = document.createElement('style');
+>     stylesheet.innerHTML = "";
+>
+>     return stylesheet;
+>   }
+>
+>   $$event() {
+>     for (const evt of this.$$events) {
+>       evt[1].addEventListener(evt[0], evt[2])
+>     }
+>   }
+>
+>   render(root) {
+>     document.head.appendChild(this.$$stylesheet());
+>     for (const component of [].concat(...this.$$components())) {
+>       $$isElement(component)&&root.appendChild(component);
+>     }
+>     this.$$event();
+>   }
+> }
+> ```
+
+</details>
 
 ### `parse()`
 
