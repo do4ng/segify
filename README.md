@@ -71,7 +71,7 @@ export default defineConfig({
     Segify({
       // compile target
       extension: '.seg',
-      // client assets
+      // client assets (this option is not used usually)
       asset: {
         raw: undefined,
         location: undefined,
@@ -96,6 +96,9 @@ declare module '*.seg' {
   export { Component, Component as default };
 }
 ```
+
+> [!NOTE]
+> If extension is set to `.html`, vite will trigger an error. So please use `.seg` or any other extension.
 
 ## Counter
 
