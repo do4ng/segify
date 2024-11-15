@@ -1,1 +1,1 @@
-(Hello, {{ $.children }}!)
+Hello, {{ $.children }}!

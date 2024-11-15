@@ -49,6 +49,17 @@ function append(elements: HTMLElement[], data: any[]) {
               )},${$attributes.$onclick}]) && $$events[$$events.length - 1][1])`
             );
           }
+
+          // <textarea $onChange="myFunction"></textarea>
+          if ($attributes.$onchange) {
+            appends.push(
+              `($$events.push(["input", ${createElement(
+                createTag(element.tag),
+                JSON.stringify(element.attributes),
+                `[${append(element.children || [], data)[0].join(',')}]`
+              )},${$attributes.$onchange}]) && $$events[$$events.length - 1][1])`
+            );
+          }
         } else {
           appends.push(
             createElement(

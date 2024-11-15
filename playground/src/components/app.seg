@@ -1,5 +1,11 @@
 <script lang="ts" type="text/typescript">
   import Hello from './hello.seg';
+
+  function onchange() {
+    console.log('onchange');
+  }
 </script>
 
 <Hello>World!</Hello>
+
+<textarea $onchange="onchange"></textarea>
