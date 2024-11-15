@@ -4,7 +4,9 @@
   "editor.tabSize": 2,
   "files.associations": {
     "*.css": "css",
-    "css": "css"
+    "css": "css",
+    "*.seg": "html",
+    "seg": "html"
   },
   "json.validate.enable": false
 }
