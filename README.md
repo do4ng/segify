@@ -1,1 +1,1 @@
-packages/segify/README.md
+/packages/segify/README.md
