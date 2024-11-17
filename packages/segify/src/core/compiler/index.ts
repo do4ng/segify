@@ -11,6 +11,36 @@ const createData = (...args) => `...$$cd(${args.join(',')}, this.$$subscribe)`;
 
 const createTag = (tag: string) => (startsWithCapital(tag) ? tag : JSON.stringify(tag));
 
+// Define event mappings
+const EVENT_MAPPINGS = {
+  // <div $onclick="myFunction"></div>
+  $onclick: 'click',
+  // <input $onchange="myFunction"></input>
+  $onchange: 'input',
+  // <div $onmouseover="myFunction"></div>
+  $onmouseover: 'mouseover',
+  // <div $onmouseout="myFunction"></div>
+  $onmouseout: 'mouseout',
+  // <div $onmousemove="myFunction"></div>
+  $onmousemove: 'mousemove',
+  // <div $onmouseup="myFunction"></div>
+  $onmouseup: 'mouseup',
+  // <div $onmousedown="myFunction"></div>
+  $onmousedown: 'mousedown',
+  // <div $onkeyup="myFunction"></div>
+  $onkeyup: 'keyup',
+  // <div $onkeydown="myFunction"></div>
+  $onkeydown: 'keydown',
+  // <div $onkeypress="myFunction"></div>
+  $onkeypress: 'keypress',
+  // <div $onfocus="myFunction"></div>
+  $onfocus: 'focus',
+  // <div $onblur="myFunction"></div>
+  $onblur: 'blur',
+  // <div $oninput="myFunction"></div> // <== $onchange
+  $oninput: 'input',
+};
+
 function append(elements: HTMLElement[], data: any[]) {
   const appends = [];
 
@@ -18,6 +48,10 @@ function append(elements: HTMLElement[], data: any[]) {
     if (element.type === 'text') {
       appends.push(createText(JSON.stringify(element.text)));
     } else if (element.type === 'element') {
+      if (element.tag === 'script' || element.tag === 'style') {
+        continue;
+      }
+
       if (element.attributes.$) {
         const $attributes = element.attributes.$ as unknown as ElementAttributes;
 
@@ -39,26 +73,17 @@ function append(elements: HTMLElement[], data: any[]) {
             );
           }
 
-          // <div $onclick="myFunction"></div>
-          if ($attributes.$onclick) {
-            appends.push(
-              `($$events.push(["click", ${createElement(
-                createTag(element.tag),
-                JSON.stringify(element.attributes),
-                `[${append(element.children || [], data)[0].join(',')}]`
-              )},${$attributes.$onclick}]) && $$events[$$events.length - 1][1])`
-            );
-          }
-
-          // <textarea $onChange="myFunction"></textarea>
-          if ($attributes.$onchange) {
-            appends.push(
-              `($$events.push(["input", ${createElement(
-                createTag(element.tag),
-                JSON.stringify(element.attributes),
-                `[${append(element.children || [], data)[0].join(',')}]`
-              )},${$attributes.$onchange}]) && $$events[$$events.length - 1][1])`
-            );
+          // Handle all other events
+          for (const [attrName, eventName] of Object.entries(EVENT_MAPPINGS)) {
+            if ($attributes[attrName]) {
+              appends.push(
+                `($$events.push(["${eventName}", ${createElement(
+                  createTag(element.tag),
+                  JSON.stringify(element.attributes),
+                  `[${append(element.children || [], data)[0].join(',')}]`
+                )},${$attributes[attrName]}]) && $$events[$$events.length - 1][1])`
+              );
+            }
           }
         } else {
           appends.push(
@@ -124,10 +149,10 @@ export async function compile(
 
   travel(ast, (html) => {
     if (html.type === 'element' && html.tag === 'script') {
-      meta.scripts.push([html.attributes.lang, html.raw || '']);
+      meta.scripts.push([html.attributes.lang, html.text || '']);
       html.children = null;
     } else if (html.type === 'element' && html.tag === 'style') {
-      meta.styles.push([html.attributes.lang, html.raw || '']);
+      meta.styles.push([html.attributes.lang, html.text || '']);
 
       html.children = null;
     }
@@ -158,81 +183,79 @@ export async function compile(
 
   file.push(`class Component {
     $$subscribe=[];
-  constructor(props) {
-    var $$subscribe = [];
-    var $$events=[];
-    var $ = new Proxy(
-      {__props__: {}},
-      {
-        set(target, prop, value, receiver) {
+    
+    constructor(props) {
+      var $$subscribe = [];
+      var $$events = [];
+      var $ = new Proxy({__props__: {}}, {
+        set(target, prop, value) {
           target[prop] = value;
           for (const subscriber of $$subscribe) {
-            const s = subscriber[0].nodeValue=subscriber[1]();
+            subscriber[0].nodeValue = subscriber[1]();
           }
           return true;
-        },
-      }
-    );
-    for (const prop of Object.keys(props)) {
-      $[prop] = props[prop];
+        }
+      });
+      
+      Object.keys(props).forEach(prop => $[prop] = props[prop]);
+      this.$ = $;
+      this.$$events = $$events;
+      this.$$subscribe = $$subscribe;
     }
-    this.$ = $;
-    this.$$events=$$events;
-    this.$$subscribe=$$subscribe;
-  }
 
-  $$components() {
-    const {$, $$events, $$subscribe} = this;
-    var $$DEV_PROPS={\n\t${data
-      .map(
-        (d, index) =>
-          `"$${index}$":()=>(${(() => {
-            let $data = d.trim().slice(2, -2);
-            if ($data?.trim().split(' ')[0] === '@const') {
-              $data = $data.trim().split(' ').slice(1);
-            }
-
-            return $data;
-          })()})`
-      )
-      .join(',\n\t')}\n};
-    this.$$DEV_PROPS=$$DEV_PROPS;
-    ${
-      options?.disableJavascript !== true
-        ? output
-        : `/*javascript disabled (due to options.disableJavascript).\n${output}*/`
-    };
-
-    return [${fragment.join(',')}];
-  }
-
-  $$stylesheet() {
-    var stylesheet = document.createElement('style');
-    stylesheet.innerHTML = ${JSON.stringify(
-      compiledMeta.styles
-        .join('')
-        .replace(/\n/g, '')
-        .replace(/\r/g, '')
-        .replace(/\t/g, '')
-    )};
-
-    return stylesheet;
-  }
-
-  $$event() {
-    for (const evt of this.$$events) {
-      evt[1].addEventListener(evt[0], evt[2])
+    $$kill() {
+      this.$$events.forEach(evt => evt[1].removeEventListener(evt[0], evt[2]));
     }
-  }
 
-  render(root) {
-    document.head.appendChild(this.$$stylesheet());
-    for (const component of [].concat(...this.$$components())) {
-      $$isElement(component)&&root.appendChild(component);
+    $$components() {
+      const {$, $$events, $$subscribe} = this;
+      var $$DEV_PROPS = {
+        ${data
+          .map(
+            (d, index) =>
+              `"$${index}$":()=>(${(() => {
+                const $data = d.trim().slice(2, -2);
+                return $data?.trim().split(' ')[0] === '@const'
+                  ? $data.trim().split(' ').slice(1)
+                  : $data;
+              })()})`
+          )
+          .join(',\n\t')}
+      };
+      this.$$DEV_PROPS = $$DEV_PROPS;
+      ${
+        options?.disableJavascript !== true
+          ? output
+          : `/*javascript disabled (due to options.disableJavascript).\n${output}*/`
+      };
+
+      return [${fragment.join(',')}];
     }
-    this.$$event();
-  }
-}`);
+
+    $$stylesheet() {
+      var stylesheet = document.createElement('style');
+      stylesheet.innerHTML = ${JSON.stringify(
+        compiledMeta.styles
+          .join('')
+          .replace(/\n/g, '')
+          .replace(/\r/g, '')
+          .replace(/\t/g, '')
+      )};
+      return stylesheet;
+    }
+
+    $$event() {
+      this.$$events.forEach(evt => evt[1].addEventListener(evt[0], evt[2]));
+    }
+
+    render(root) {
+      document.head.appendChild(this.$$stylesheet());
+      [].concat(...this.$$components())
+        .filter($$isElement)
+        .forEach(component => root.appendChild(component));
+      this.$$event();
+    }
+  }`);
 
   if (options?.noExport !== true) {
     file.push('export { Component, Component as default}');
