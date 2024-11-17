@@ -1,11 +1,166 @@
 <script lang="ts" type="text/typescript">
-  import Hello from './hello.seg';
+  import { compile, serverRender } from 'segify';
+  import { version } from '../../../node_modules/segify/package.json';
 
-  function onchange() {
-    console.log('onchange');
+  let htmloutput = null;
+  let inputMount = null;
+
+  $.code = '';
+
+  async function onCompile() {
+    htmloutput.innerHTML = 'Compiling...';
+
+    if (document.getElementById('ssr').checked) {
+      window.process = {
+        env: {},
+      };
+
+      $.code = (await serverRender(inputMount.value)).output
+        .map((a) => a.getText())
+        .join('');
+      console.log($.code);
+
+      htmloutput.innerHTML = $.code;
+      return;
+    }
+
+    try {
+      $.code = await compile(inputMount.value, { disableProcessor: true });
+
+      // remove export
+      $.code = $.code.slice(0, -'export { Component, Component as default}'.length);
+
+      console.log($.code);
+
+      const outputelements = new Function(
+        `${$.code};const c = new Component({});var cc = c.$$components();c.$$event();return cc`
+      )();
+
+      htmloutput.innerHTML = '';
+
+      for (const element of outputelements) {
+        htmloutput.appendChild(element);
+      }
+    } catch (e) {
+      htmloutput.innerHTML = `<span style="color: red;">${e}</span>`;
+      console.log(e);
+      throw new Error(e);
+    }
+  }
+
+  function onMount(m) {
+    if (window.location.hash) {
+      m.value = decodeURI(window.location.hash.slice(1)).replace(/\\n/g, '\n');
+    } else {
+      m.value = `<h1>Hello World!</h1>`;
+    }
+  }
+
+  function share() {
+    const code = encodeURI(inputMount.value);
+    navigator.clipboard.writeText(`https://segify.vercel.app/repl.html#${code}`).then(
+      function () {
+        alert('Success!');
+      },
+      function (err) {
+        console.error('Could not copy text: ', err);
+      }
+    );
   }
 </script>
 
-<Hello>World!</Hello>
+<div class="container">
+  <div class="input">
+    <div class="area-wrapper">
+      <textarea $mount="inputMount" $onmount="onMount"></textarea>
+      <div>
+        <input type="checkbox" id="ssr" name="ssr" />
+        <label for="ssr">SSR</label>
+      </div>
+    </div>
+    <div>
+      <div class="button">
+        <span>Check the console to see the compiled javascript results. </span>
+        <button $onclick="onCompile">Compile!</button>
+        <button $onclick="share">Copy link to clipboard!</button>
+      </div>
+    </div>
+  </div>
+  <div class="output">
+    <h3>Compiled Output (HTML)</h3>
+    <span>(compiled with: segify@{{ @const version }} - workspace development)</span>
+    <br />
+    <div class="output-html" $mount="htmloutput">
+      Click the compile button to run code
+    </div>
+  </div>
+</div>
 
-<textarea $onchange="onchange"></textarea>
+<style lang="scss">
+  .input button {
+    background-color: #fff;
+    border: 1px solid #d8d8d8;
+    padding: 10px 7px;
+    border-radius: 3px;
+    transition: all 0.1s ease;
+    margin: 8px 0;
+  }
+  .input button:hover {
+    background-color: #e6e6e6ab;
+    cursor: pointer;
+  }
+  span {
+    color: #747474;
+    font-size: 12px;
+  }
+  h3 {
+    margin: 0;
+    margin-top: 30px;
+  }
+  .container {
+    width: 100vw;
+    height: 80vh;
+    display: flex;
+    overflow: auto;
+  }
+  .input {
+    width: 50%;
+
+    .button {
+      width: 80%;
+      margin: 25px auto;
+      text-align: center;
+      button {
+        width: 100%;
+      }
+    }
+  }
+  .area-wrapper {
+    width: 80%;
+    height: 70%;
+    margin: 25px auto;
+    margin-bottom: none;
+  }
+  textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    border: 1px solid #b4b4b4;
+    border-radius: 10px;
+  }
+  textarea:focus {
+    outline: none;
+    border: 1px solid #949494;
+  }
+
+  .output {
+    width: 50%;
+  }
+  .output-html {
+    height: 50%;
+  }
+  .output-js {
+    height: 50%;
+    overflow: auto;
+  }
+</style>
