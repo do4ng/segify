@@ -46,10 +46,15 @@ export async function serverRender(code: string) {
 
   const script = `${runtime}${js};const __serverside_component = new Component({}); return __serverside_component.$$components();`;
 
-  const output: Array<{ getText: () => string }> = new Function(script)();
+  try {
+    const output: Array<{ getText: () => string }> = new Function(script)();
 
-  return {
-    output,
-    script,
-  };
+    return {
+      output,
+      script,
+    };
+  } catch (e) {
+    console.error('error occurred while generating html (ssr mode)');
+    throw new Error(e);
+  }
 }

@@ -2,8 +2,29 @@
 import { HTMLElement } from './element';
 import { parseTag } from './tag';
 
+const VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
+
+const RAW_TEXT_ELEMENTS = new Set(['script', 'style', 'textarea', 'title']);
+
 export interface ParserOptions {
   keepComment?: boolean;
+  preserveWhitespace?: boolean;
+  maxNestingLevel?: number;
 }
 
 export interface ParserStats {
@@ -23,6 +44,7 @@ export interface ParserStats {
     stringOpenStr: string;
   };
   dataAllowed: boolean;
+  nestingLevel?: number;
 }
 
 export function processBeforeParse(code: string = '') {
@@ -50,9 +72,16 @@ export class Parser {
 
   result: HTMLElement[];
 
+  errors: string[] = [];
+
   constructor(code: string, options?: ParserOptions) {
     this.code = code;
-    this.options = options || {};
+    this.options = {
+      keepComment: false,
+      preserveWhitespace: false,
+      maxNestingLevel: 100,
+      ...options,
+    };
     this.result = [new HTMLElement({ type: 'fragment' })];
     this.stats = {
       current: 0,
@@ -62,6 +91,7 @@ export class Parser {
       status: null,
       start: -1,
       end: -1,
+      nestingLevel: 0,
       dataTagStatus: {
         stringOpened: false,
         stringOpenStr: null,
@@ -144,19 +174,51 @@ export class Parser {
     return result;
   }
 
+  private addError(message: string) {
+    const line = this.code.slice(0, this.stats.current).split('\n').length;
+
+    this.errors.push(`Line ${line}: ${message}`);
+  }
+
+  private handleText() {
+    if (!this.stats.selected) return;
+
+    const text = this.options.preserveWhitespace
+      ? this.stats.selected
+      : this.stats.selected.trim();
+
+    if (!text) return;
+
+    const element = new HTMLElement({ type: 'text' });
+    element.text = text;
+    this.stats.parent.appendChild(element);
+  }
+
+  private parseTag(tagText: string) {
+    const tag = parseTag(tagText);
+
+    if (!tag.tagName || /[^a-zA-Z0-9-]/.test(tag.tagName)) {
+      this.addError(`Invalid tag name: ${tag.tagName}`);
+    }
+
+    return tag;
+  }
+
   parse() {
     while (this.stats.current < this.code.length) {
       const text = this.code[this.stats.current];
 
-      // close comment
+      if (this.stats.nestingLevel > this.options.maxNestingLevel) {
+        this.addError('Maximum nesting level exceeded');
+        break;
+      }
+
       if (this.stats.status === 'comment' && this.willBe('-->')) {
         if (this.options.keepComment) {
           this.addChild();
         }
-
         this.reset();
         this.next(3);
-
         continue;
       }
       if (this.stats.status === null && this.willBe('<!--')) {
@@ -167,7 +229,6 @@ export class Parser {
         continue;
       }
 
-      // skip comment
       if (this.stats.status === 'comment') {
         if (this.options.keepComment) {
           this.stats.selected += text;
@@ -176,10 +237,6 @@ export class Parser {
 
         continue;
       }
-
-      /*
-      tags
-      */
 
       if (text === '$') {
         if (this.stats.selected) {
@@ -207,49 +264,50 @@ export class Parser {
       }
 
       if (text === '<' && !this.willBe('</')) {
-        // open tag
-
         if (this.stats.selected) {
-          const element = new HTMLElement({ type: 'text' });
-          element.text = this.stats.selected;
-
-          this.stats.parent.appendChild(element);
-
+          this.handleText();
           this.reset();
         }
 
         const tag = this.until('>', { '"': '"', "'": "'" });
-        const parsedTag = parseTag(tag.text);
 
-        // <script> / <style>
-        if (parsedTag.tagName === 'script' || parsedTag.tagName === 'style') {
-          this.stats.start = this.stats.current;
-          this.stats.dataAllowed = false;
+        const parsedTag = this.parseTag(tag.text);
+
+        if (VOID_ELEMENTS.has(parsedTag.tagName.toLowerCase())) {
+          const element = new HTMLElement({
+            type: 'element',
+            tag: parsedTag.tagName,
+            attributes: parsedTag.attributes || {},
+          });
+          this.stats.parent.appendChild(element);
+          this.next();
+          continue;
+        }
+
+        if (RAW_TEXT_ELEMENTS.has(parsedTag.tagName.toLowerCase())) {
+          parsedTag.tagName = parsedTag.tagName.trim();
           this.stats.element = new HTMLElement({
             type: 'element',
-            tag: parsedTag.tagName as string,
+            tag: parsedTag.tagName,
             attributes: parsedTag.attributes || {},
           });
 
-          while (this.stats.current < this.code.length) {
-            this.until('<', { '"': '"', "'": "'", '`': '`' });
+          const endTag = `</${parsedTag.tagName}`;
+          const contentStart = this.stats.current + 1;
+          const contentEnd = this.code.indexOf(endTag, contentStart);
 
-            if (this.code[this.stats.current + 1] === '/') {
-              break;
-            }
+          if (contentEnd === -1) {
+            this.addError(`Unclosed ${parsedTag.tagName} tag`);
             this.next();
+            continue;
           }
 
-          this.stats.element.position = {
-            start: this.stats.start,
-            end: this.stats.current - 1,
-          };
-          this.stats.end = this.stats.current;
-          this.stats.element.raw = this.code.slice(this.stats.start + 1, this.stats.end);
-          this.stats.parent.appendChild(this.stats.element);
-          this.until('>', { '"': '"', "'": "'" });
-          this.next();
+          const content = this.code.slice(contentStart, contentEnd);
 
+          this.stats.element.text = content;
+          this.stats.parent.appendChild(this.stats.element);
+
+          this.stats.current = contentEnd + endTag.length + 1;
           this.reset();
           continue;
         }
@@ -290,9 +348,11 @@ export class Parser {
 
         this.reset();
 
+        this.stats.nestingLevel += 1;
+
         continue;
       } else if (this.willBe('</')) {
-        // close tag
+        this.stats.nestingLevel -= 1;
         if (this.stats.selected) {
           const element = this.stats.element || new HTMLElement({ type: 'text' });
           element.text = this.stats.selected;
@@ -311,13 +371,13 @@ export class Parser {
       this.next();
     }
 
-    if (this.stats.selected.trim() !== '') {
-      const element = this.stats.element || new HTMLElement({ type: 'text' });
-      element.text = this.stats.selected;
-
-      this.stats.parent.appendChild(element);
+    if (this.stats.selected.trim()) {
+      this.handleText();
     }
 
-    return this.stats;
+    return {
+      ...this.stats,
+      errors: this.errors,
+    };
   }
 }

@@ -4,7 +4,12 @@ export function parse(code: string, options?: ParserOptions) {
   const { code: c, data } = processBeforeParse(code);
 
   const parser = new Parser(c, options);
+
   parser.parse();
+
+  if (parser.errors.length > 0) {
+    throw new Error(parser.errors.join('\n'));
+  }
 
   return { ast: parser.stats.parent, data };
 }
