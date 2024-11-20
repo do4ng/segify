@@ -41,6 +41,11 @@ const EVENT_MAPPINGS = {
   $oninput: 'input',
 };
 
+if (typeof process === 'undefined') {
+  // @ts-ignore
+  window.process = {};
+}
+
 function append(elements: HTMLElement[], data: any[]) {
   const appends = [];
 
@@ -57,7 +62,7 @@ function append(elements: HTMLElement[], data: any[]) {
 
         delete element.attributes.$;
 
-        if ($attributes && process.env.mode !== 'ssr') {
+        if ($attributes && process?.env?.mode !== 'ssr') {
           // <div $mount=""></div>
           if ($attributes.$mount || $attributes.$onmount) {
             // client side rendering
