@@ -33,13 +33,12 @@
       console.log($.code);
 
       const outputelements = new Function(
-        `${$.code};const c = new Component({});var cc = c.$$components();c.$$event();return c.$$components()`
+        `${$.code};const c = new Component({});var cc = c.$$components();c.$$event();return cc`
       )();
 
       htmloutput.innerHTML = '';
 
       for (const element of outputelements) {
-        console.log(element, Array.isArray(element));
         if (Array.isArray(element)) {
           for (let output of element) {
             console.log(output);
