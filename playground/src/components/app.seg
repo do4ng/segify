@@ -1,5 +1,5 @@
 <script lang="ts" type="text/typescript">
-  import { compile, serverRender } from 'segify';
+  import { compile, serverRender } from '../../../packages/segify/src';
   import { version } from '../../../node_modules/segify/package.json';
 
   let htmloutput = null;
@@ -33,13 +33,21 @@
       console.log($.code);
 
       const outputelements = new Function(
-        `${$.code};const c = new Component({});var cc = c.$$components();c.$$event();return cc`
+        `${$.code};const c = new Component({});var cc = c.$$components();c.$$event();return c.$$components()`
       )();
 
       htmloutput.innerHTML = '';
 
       for (const element of outputelements) {
-        htmloutput.appendChild(element);
+        console.log(element, Array.isArray(element));
+        if (Array.isArray(element)) {
+          for (let output of element) {
+            console.log(output);
+            htmloutput.appendChild(output);
+          }
+        } else {
+          htmloutput.appendChild(element);
+        }
       }
     } catch (e) {
       htmloutput.innerHTML = `<span style="color: red;">${e}</span>`;
