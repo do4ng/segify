@@ -40,11 +40,17 @@ var env = "ssr"
 var window={__env__: env}
 `;
 
-export async function serverRender(code: string) {
+export async function serverRender(code: string, props: Record<string, any> = {}) {
   process.env.mode = 'ssr';
-  const js = await compile(code, { noExport: true, disableJavascript: true });
+  const js = await compile(code, {
+    noExport: true,
+    disableJavascript: true,
+    serverMode: true,
+  });
 
-  const script = `${runtime}${js};const __serverside_component = new Component({}); return __serverside_component.$$components();`;
+  const script = `${runtime}${js};const __serverside_component = new Component(${JSON.stringify(
+    props
+  )}); return __serverside_component.$$components();`;
 
   try {
     const output: Array<{ getText: () => string }> = new Function(script)();

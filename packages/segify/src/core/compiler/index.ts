@@ -138,8 +138,17 @@ export async function compile(
     noExport?: boolean;
     disableProcessor?: boolean;
     disableJavascript?: boolean;
+    serverMode?: boolean;
   }
 ) {
+  if (options?.serverMode) {
+    try {
+      process.env.mode = 'ssr';
+    } catch (e) {
+      throw new Error('Server mode is not supported in the browser');
+    }
+  } else if (process?.env?.mode === 'ssr') process.env.mode = 'client';
+
   const { ast, data } = parse(source, { keepComment: false });
   const file = [];
   const meta = {
