@@ -27,11 +27,9 @@ for (const pkg of buildPkgs) {
     outbase: join(buildBase, './src'),
     outdir: join(buildBase, './dist'),
     metafile: true,
-    splitting: true,
-    treeShaking: true,
     minify: true,
 
-    plugins: [nodeExternalsPlugin()],
+    plugins: [nodeExternalsPlugin({ devDependencies: true })],
   };
 
   const esmBuild = () =>
@@ -39,8 +37,18 @@ for (const pkg of buildPkgs) {
       ...baseConfig,
       format: 'esm',
       bundle: true,
+      splitting: true,
+      treeShaking: true,
       chunkNames: '[hash]',
       outExtension: { '.js': '.mjs' },
+    });
+  const cjsBuild = () =>
+    build({
+      ...baseConfig,
+      format: 'cjs',
+      bundle: true,
+      chunkNames: '[hash]',
+      outExtension: { '.js': '.js' },
     });
 
   if (process.argv.includes('--dts')) {
@@ -58,4 +66,5 @@ for (const pkg of buildPkgs) {
   }
 
   esmBuild();
+  cjsBuild();
 }

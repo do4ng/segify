@@ -136,8 +136,6 @@ const js = await compile(`
 Options:
 
 - `keepComments?: boolean` - Preserve HTML comments
-- `filename?: string` - Source filename for better error messages
-- `sourceMap?: boolean` - Generate source maps
 
 #### `parse(source: string, options?: ParseOptions)`
 
