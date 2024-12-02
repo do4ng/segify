@@ -1,7 +1,7 @@
 {
   "name": "segify",
-  "version": "0.0.0-beta.15",
-  "main": "./dist/index.mjs",
+  "version": "0.0.0-beta.16",
+  "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/do4ng/segify",
